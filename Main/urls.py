@@ -12,5 +12,7 @@ router = routers.DefaultRouter()
 
 
 urlpatterns = [
+    path('', include(router.urls)),
+    path('register/', RegisterAPIView.as_view(),name='register'),
 
 ]

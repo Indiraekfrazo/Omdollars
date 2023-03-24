@@ -6,4 +6,4 @@ from .models import *
 @admin.register(CustomUser)
 class CustomUser(admin.ModelAdmin):
     list_display = ['id','user','user_name','first_name','last_name','email','password','address','phone_number','age','om_dollars_balance',
-                    'photo','created_datetime','updated_datetime','role_id']
+                    'profile_image_path','created_datetime','updated_datetime','role_id']

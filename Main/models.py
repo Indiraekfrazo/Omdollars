@@ -14,7 +14,7 @@ class CustomUser(models.Model):
     phone_number=models.CharField(max_length=50, null=True, blank=True)
     age = models .IntegerField()
     om_dollars_balance = models.CharField(max_length=200, null=True, blank=True)
-    photo = models.TextField(blank=True, null=True)
+    profile_image_path= models.CharField(max_length=100, null=True, blank=True)
     created_datetime = models.DateTimeField(auto_now_add=True, null=True)
     updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
     role_id = models.ForeignKey(Role,null=True, on_delete= models.CASCADE,related_name="role_on_customuser")
