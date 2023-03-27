@@ -14,5 +14,7 @@ router = routers.DefaultRouter()
 urlpatterns = [
     path('', include(router.urls)),
     path('register/', RegisterAPIView.as_view(),name='register'),
-
+    path('login/', LoginAPIView.as_view(),name='login'),
+    path('projects/', ProjectAPIView.as_view(),name='Projects'),
+    path('projects/<int:pk>', ProjectAPIView.as_view(),name='Projects_details'),
 ]

@@ -6,6 +6,8 @@ from rest_framework.views import APIView
 from .models import *
 from rest_framework import viewsets, status
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.utils import IntegrityError
 # Create your views here.
 
 
@@ -22,7 +24,7 @@ class RoleAPIView(APIView):
             else:
                 role=Role.objects.create(name=name,description=description,access=access)
 
-            return Response({"Message":"Data Sucessfully Added","Status": "HTTP_201_CREATED"})
+            return Response({"Message":"Data Sucessfully Added","Status": "HTTP_201_CREATED","Data":role})
         else:
             return Response({"Error":"Data Already Exists","status":"status.HTTP_400_BAD_REQUEST"})
 
@@ -76,9 +78,8 @@ class RateCardAPIView(APIView):
             if RateCard.objects.filter(Q(work=work)).exists():
                 return Response({'Error':'User Already Exists'})
             else:
-                role=RateCard.objects.create(work=work,description=description,rate=rate)
-
-            return Response({"Message":"Data Sucessfully Added","Status": "HTTP_201_CREATED"})
+                ratecard=RateCard.objects.create(work=work,description=description,rate=rate)
+                return Response({"Message":"Data Sucessfully Added","Status": "HTTP_201_CREATED"})
         else:
             return Response({"Error":"Data Already Exists","status":"status.HTTP_400_BAD_REQUEST"})
 
@@ -125,15 +126,31 @@ class ProjectstatusAPIView(APIView):
         data = request.data
         name = data.get('name')
         description = data.get('description')
-        if data:
+        selected_page_no =1 
+        page_number = request.GET.get('page')
+        if page_number:
+            selected_page_no = int(page_number)
+        try:
             if Projectstatus.objects.filter(Q(name=name)).exists():
                 return Response({'Error':'User Already Exists'})
             else:
-                role=Projectstatus.objects.create(name=name,description=description)
-
-            return Response({"Message":"Data Sucessfully Added","Status": "HTTP_201_CREATED"})
-        else:
-            return Response({"Error":"Data Already Exists","status":"status.HTTP_400_BAD_REQUEST"})
+                Projectstatus.objects.create(name=name,description=description)
+                project_status = Projectstatus.objects.all().values()
+                paginator = Paginator(project_status,10)
+            try:
+                page_obj = paginator.get_page(selected_page_no)
+            except PageNotAnInteger:
+                page_obj = paginator.page(1)
+            except:
+                page_obj = paginator.page(paginator.num_pages)
+            return Response({'result':{'status':'Date created sucdessfully','data':list(page_obj)}})
+        except IntegrityError as e:
+            error_message = e.args
+            return Response({
+            'error':{'message':'DB error!',
+            'detail':error_message,
+            'status_code':status.HTTP_400_BAD_REQUEST,
+            }},status=status.HTTP_400_BAD_REQUEST)
 
 
     def get(self,request):

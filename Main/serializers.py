@@ -11,3 +11,8 @@ class CustomUserSerilizer(serializers.ModelSerializer):
         model = CustomUser
         fields = '__all__'
         
+class ProjecSerilizer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Projects
+        fields = '__all__'
