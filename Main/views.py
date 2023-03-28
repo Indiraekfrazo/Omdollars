@@ -253,4 +253,260 @@ class ProjectAPIView(APIView):
                 'status_code':status.HTTP_404_NOT_FOUND,
                 }},status=status.HTTP_404_NOT_FOUND)
 
+class SupervisorAPIView(APIView):
+    def post(self,request):
+        data = request.data
+        name = data.get('name')
+        status= data.get('status')
+        user_id= data.get('user_id')
+        selected_page_no =1 
+        page_number = request.GET.get('page')
+        if page_number:
+            selected_page_no = int(page_number)
+        try:
+            if Supervisor.objects.filter(Q(name=name)).exists():
+                return Response({'Error':'Project_name Already Exists'})
+            else:
+
+                Supervisor.objects.create(name=name,
+                                        status = status,
+                                        user_id_id= user_id,
+                                        )
+                project = Supervisor.objects.all().values()
+                paginator = Paginator(project,10)
+            try:
+                page_obj = paginator.get_page(selected_page_no)
+            except PageNotAnInteger:
+                page_obj = paginator.page(1)
+            except:
+                page_obj = paginator.page(paginator.num_pages)
+            return Response({'result':{'status':'Data created sucdessfully','data':list(page_obj)}})
+        except IntegrityError as e:
+            error_message = e.args
+            return Response({
+            'error':{'message':'DB error!',
+            'detail':error_message,
+            'status_code':status.HTTP_400_BAD_REQUEST,
+            }},status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self,request):
+        id = request.query_params.get('id')
+        if id:
+            try:
+                all_data = Supervisor.objects.filter(id=id).values()
+                return Response({'result':{'status':'GET by id','data':all_data}})
+            except Supervisor.DoesNotExist:
+                return Response({
+                'error':{'message':'Id does not exists!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        else:
+            all_data = Supervisor.objects.all().values()
+            return Response({'result':{'status':'All data','data':all_data}})
+        
+
+    def put(self, request):
+        data = request.data
+        id = data.get('id')
+        if id:
+            data = Supervisor.objects.filter(id=id).update(name = data.get("name"),
+                                        status = data.get("status"),
+                                        user_id = data.get("user_id"),
+                                )
+            if data:
+                    return Response({'message': 'Data Updated Sucessfully.'})
+            else:
+                response={'message':"Invalid id"}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'Id Required.'})
+
+
+
+    def delete(self, request):
+        id =self.request.query_params.get('id')
+        item = Supervisor.objects.filter(id= id)
+        if len(item) > 0:
+            item.delete()
+            return Response({'result':{'Status':'Data Deleted Sucessfully'}})
+        else:
+            return Response({'error':{'message':'Record not found!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        
+
+    
+class ProjectbidsAPIView(APIView):
+    def post(self,request):
+        data = request.data
+        description = data.get('description')
+        user_id= data.get('user_id')
+        project_id= data.get('project_id')
+        created_datetime =data.get('created_datetime')
+        updated_datetime= data.get('updated_datetime')
+        selected_page_no =1 
+        page_number = request.GET.get('page')
+        if page_number:
+            selected_page_no = int(page_number)
+        try:
+            if data:
+
+                Projectbids.objects.create(description=description,
+                                        user_id_id = user_id,
+                                        project_id_id= project_id,
+                                        created_datetime = created_datetime,
+                                        updated_datetime= updated_datetime
+                                        )
+                project = Projectbids.objects.all().values()
+                paginator = Paginator(project,10)
+            try:
+                page_obj = paginator.get_page(selected_page_no)
+            except PageNotAnInteger:
+                page_obj = paginator.page(1)
+            except:
+                page_obj = paginator.page(paginator.num_pages)
+            return Response({'result':{'status':'Data created sucdessfully','data':list(page_obj)}})
+        except IntegrityError as e:
+            error_message = e.args
+            return Response({
+            'error':{'message':'DB error!',
+            'detail':error_message,
+            'status_code':status.HTTP_400_BAD_REQUEST,
+            }},status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self,request):
+        id = request.query_params.get('id')
+        if id:
+            try:
+                all_data = Projectbids.objects.filter(id=id).values()
+                return Response({'result':{'status':'GET by id','data':all_data}})
+            except Projectbids.DoesNotExist:
+                return Response({
+                'error':{'message':'Id does not exists!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        else:
+            all_data = Projectbids.objects.all().values()
+            return Response({'result':{'status':'All data','data':all_data}})
+        
+
+    def put(self, request):
+        data = request.data
+        id = data.get('id')
+        if id:
+            data = Projectbids.objects.filter(id=id).update(description = data.get('description'),
+                                                                user_id= data.get('user_id'),
+                                                                project_id= data.get('project_id')
+                                )
+            if data:
+                    return Response({'message': 'Data Updated Sucessfully.'})
+            else:
+                response={'message':"Invalid id"}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'Id Required.'})
+
+
+
+    def delete(self, request):
+        id =self.request.query_params.get('id')
+        item = Projectbids.objects.filter(id= id)
+        if len(item) > 0:
+            item.delete()
+            return Response({'result':{'Status':'Data Deleted Sucessfully'}})
+        else:
+            return Response({'error':{'message':'Record not found!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        
+
+    
+class SupervisorProjectDetailAPIView(APIView):
+    def post(self,request):
+        data = request.data
+        name  = data.get('name')
+        user_id= data.get('user_id')
+        status_id = data.get('status_id')
+        project_id= data.get('project_id')
+        created_datetime =data.get('created_datetime')
+        updated_datetime= data.get('updated_datetime')
+        selected_page_no =1 
+        page_number = request.GET.get('page')
+        if page_number:
+            selected_page_no = int(page_number)
+        try:
+            if data:
+                SupervisorProjectDetail.objects.create(name=name,
+                                        user_id_id = user_id,
+                                        status_id_id =status_id,
+                                        project_id_id= project_id,
+                                        created_datetime = created_datetime,
+                                        updated_datetime = updated_datetime
+                                        )
+                project = SupervisorProjectDetail.objects.all().values()
+                paginator = Paginator(project,10)
+            try:
+                page_obj = paginator.get_page(selected_page_no)
+            except PageNotAnInteger:
+                page_obj = paginator.page(1)
+            except:
+                page_obj = paginator.page(paginator.num_pages)
+            return Response({'result':{'status':'Data created sucdessfully','data':list(page_obj)}})
+        except IntegrityError as e:
+            error_message = e.args
+            return Response({
+            'error':{'message':'DB error!',
+            'detail':error_message,
+            'status_code':status.HTTP_400_BAD_REQUEST,
+            }},status=status.HTTP_400_BAD_REQUEST)
+
+
+    def get(self,request):
+        id = request.query_params.get('id')
+        if id:
+            try:
+                all_data = SupervisorProjectDetail.objects.filter(id=id).values()
+                return Response({'result':{'status':'GET by id','data':all_data}})
+            except SupervisorProjectDetail.DoesNotExist:
+                return Response({
+                'error':{'message':'Id does not exists!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        else:
+            all_data = SupervisorProjectDetail.objects.all().values()
+            return Response({'result':{'status':'All data','data':all_data}})
+        
+
+    def put(self, request):
+        data = request.data
+        id = data.get('id')
+        if id:
+            data = SupervisorProjectDetail.objects.filter(id=id).update(name = data.get('name'),
+                                                        user_id= data.get('user_id'),
+                                                        status_id = data.get('status_id'),
+                                                        project_id= data.get('project_id'),
+                    
+                                )
+            if data:
+                    return Response({'message': 'Data Updated Sucessfully.'})
+            else:
+                response={'message':"Invalid id"}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'Id Required.'})
+
+
+
+    def delete(self, request):
+        id =self.request.query_params.get('id')
+        item = SupervisorProjectDetail.objects.filter(id= id)
+        if len(item) > 0:
+            item.delete()
+            return Response({'result':{'Status':'Data Deleted Sucessfully'}})
+        else:
+            return Response({'error':{'message':'Record not found!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        
+
     

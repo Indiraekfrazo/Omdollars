@@ -34,6 +34,33 @@ class Projects(models.Model):
     terms_and_conditions = models.CharField(max_length=50, null=True, blank=True)
     is_accepted_tnc = models.BooleanField()
     project_status = models.ForeignKey(Projectstatus,null=True, on_delete= models.CASCADE,related_name="status_on_projects")
-    user_ref =models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE,related_name="user_on_projects")
+    user_ref = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE,related_name="user_on_projects")
     created_datetime = models.DateTimeField(auto_now_add=True, null=True)
     updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
+
+
+class Supervisor(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    status = models.CharField(max_length=50, null=True, blank=True)
+    created_datetime = models.DateTimeField(auto_now_add=True, null=True)
+    updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
+    user_id = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE)
+
+class Projectbids(models.Model):
+    description = models.CharField(max_length=50, null=True, blank=True)
+    user_id = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE,related_name="user_on_projectbids")
+    project_id = models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="projects_on_projectbids")
+    created_datetime = models.DateTimeField(auto_now_add=True, null=True)
+    updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
+
+
+class SupervisorProjectDetail(models.Model):
+    name = models.CharField(max_length=50, null=True, blank=True)
+    project_id = models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="projects_on_superviserdetail")
+    status_id = models.ForeignKey(Projectstatus,null=True, on_delete= models.CASCADE,related_name="status_on_superviserdetail")                    
+    user_id = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE,related_name="user_on_superviserdetail")
+    created_datetime = models.DateTimeField(auto_now_add=True, null=True)
+    updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
+
+
+

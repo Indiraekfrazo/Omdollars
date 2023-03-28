@@ -14,3 +14,17 @@ class Projects(admin.ModelAdmin):
     list_display = [ "id","project_name","estimated_hours","estimation_completion_time","description_of_work",
                     "outcome_required","estimated_value_rate","terms_and_conditions","is_accepted_tnc","project_status","user_ref",
                     "created_datetime","updated_datetime"]
+    
+@admin.register(Supervisor)
+class Supervisor(admin.ModelAdmin):
+    list_display = [ "id","name","status","user_id","created_datetime","updated_datetime"]
+
+
+@admin.register(Projectbids)
+class Projectbids(admin.ModelAdmin):
+    list_display = [ "id","description","user_id","project_id","created_datetime","updated_datetime"]
+
+
+@admin.register(SupervisorProjectDetail)
+class SupervisorProjectDetail(admin.ModelAdmin):
+    list_display = [ "id","name","user_id","project_id","status_id","created_datetime","updated_datetime"]
