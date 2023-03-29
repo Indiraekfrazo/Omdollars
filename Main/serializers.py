@@ -16,3 +16,15 @@ class ProjecSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Projects
         fields = '__all__'
+
+class ProjectbidSerilizer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Projectbids
+        fields = '__all__'
+
+class SupervisorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Supervisor
+        fields = '__all__'

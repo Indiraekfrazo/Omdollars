@@ -13,6 +13,7 @@ import random
 import base64
 from mimetypes import guess_type, guess_extension
 from django.db.models import Q
+from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.utils import IntegrityError
@@ -77,8 +78,9 @@ class RegisterAPIView(APIView):
             return Response(response_result['result'], headers=response,status= status.HTTP_200_OK) 
         
 def tokenFunction(user_id):
+    breakpoint()
     user_obj = CustomUser.objects.get(user_id=user_id)
-    user = User.objects.get(id=user_id)
+    #user = User.objects.get(id=user_id)
     auth_token = jwt.encode(
         {'cuser_id':user_id,"username":user_obj.user_name,
         }, str(settings.JWT_SECRET_KEY), algorithm="HS256")
@@ -93,9 +95,8 @@ def tokenFunction(user_id):
             }
     response['Authorization'] = authorization 
     response['status'] = status.HTTP_200_OK
-    response['username']=user.username
+    response['username']=user_obj.user_name
     response['user_id']=user_id
-
     return response 
 
 
@@ -104,48 +105,46 @@ class LoginAPIView(APIView):
     def post(self,request):
         #breakpoint()
         data = request.data
-        username = data.get('username')
+        username = data.get('user_name')
         role = data.get('role')
         password = data.get('password')
         response ={}
         if role == 'ADMIN':
-            if User.objects.filter(username=username).exists() and org_password == True:
-                org_password = check_password(password, User.objects.get(username=username).password)
-                cuser_obj= User.objects.get(username=username)
+            if CustomUser.objects.filter(user_name=username).exists():
+                org_password = check_password(password, CustomUser.objects.get(user_name=username).password)
+                cuser_obj= CustomUser.objects.get(user_name=username)
                 user_token = tokenFunction(cuser_obj.id)
                 return Response(user_token)
             else:
                 return Response({"error":"User does Not exit"})
                 
-        if role == "SUPERVISER":
+        if role == "SUPERVISOR":
             if username is not None and password is not None:
                 usr_password = check_password(password, User.objects.get(username=username).password)
                 if User.objects.filter(username=username).exists():
                     user_obj = User.objects.get(username=username)
                     user_token = tokenFunction(user_obj.id)
-                return Response(user_token)
-            else:
-                return Response({"error":"Invalid Credentails"},status=status.HTTP_404_NOT_FOUND )
+                    return Response(user_token)
+                else:
+                    return Response({"error":"Invalid Credentails"},status=status.HTTP_404_NOT_FOUND )
                     
         if role == 'STUDENT':
             if User.objects.filter(username=username).exists() and org_password == True:
                 org_password = check_password(password, User.objects.get(username=username).password)
                 cuser_obj= User.objects.get(username=username)
-                        #user_id =CustomUser.objects.get(Q(phone_number=phone_number))
+                #user_id =CustomUser.objects.get(Q(phone_number=phone_number))
                 user_token = tokenFunction(cuser_obj.id)
-                return Response(user_token)
+                return Response(user_token)                
             else:
-                return Response({"error":"User does Not exit"})
-                
-        # else:
-        #     header_response = {}
-        #     response['error'] = {'error': {
-        #                 'detail': 'Invalid Email / Password', 'status': status.HTTP_401_UNAUTHORIZED}}   #incorrect username and password
-        #     return Response(response['error'],headers=header_response,status= status.HTTP_401_UNAUTHORIZED)
-        else:
-            response['error'] = {'error': {
-                'detail': 'Invalid Username / Password', 'status': status.HTTP_401_UNAUTHORIZED}}
-            return Response({'message': 'User account does  Not exit'},response['error'], status= status.HTTP_401_UNAUTHORIZED)
+                header_response = {}
+                response['error'] = {'error': {
+                        'detail': 'Invalid Email / Password', 'status': status.HTTP_401_UNAUTHORIZED}}   #incorrect username and password
+                return Response(response['error'],headers=header_response,status= status.HTTP_401_UNAUTHORIZED)
+        
+
+        response['error'] = {'error': {
+            'detail': 'Invalid Username / Password', 'status': status.HTTP_401_UNAUTHORIZED}}
+        return Response({'message': 'User account does  Not exit'},response['error'], status= status.HTTP_401_UNAUTHORIZED)
         
 
 
