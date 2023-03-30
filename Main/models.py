@@ -63,4 +63,17 @@ class SupervisorProjectDetail(models.Model):
     updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
 
 
+class Notes(models.Model):
+    notes = models.CharField(max_length=50, null=True, blank=True)
+    user_id = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE,related_name="user_on_notes")
+    project_id = models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="projects_on_notes")
+    created_datetime = models.DateTimeField(auto_now_add=True, null=True)
+    updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
 
+
+class Comments(models.Model):
+    comment = models.CharField(max_length=50, null=True, blank=True)
+    user_id = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE,related_name="user_on_commentss")
+    project_id = models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="projects_on_comments")
+    created_datetime = models.DateTimeField(auto_now_add=True, null=True)
+    updated_datetime = models.DateTimeField(auto_now_add=True, null=True)

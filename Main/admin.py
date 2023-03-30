@@ -28,3 +28,12 @@ class Projectbids(admin.ModelAdmin):
 @admin.register(SupervisorProjectDetail)
 class SupervisorProjectDetail(admin.ModelAdmin):
     list_display = [ "id","name","user_id","project_id","status_id","created_datetime","updated_datetime"]
+
+
+@admin.register(Notes)
+class Notes(admin.ModelAdmin):
+    list_display = [ "id","notes","user_id","project_id","created_datetime","updated_datetime"]
+
+@admin.register(Comments)
+class Comments(admin.ModelAdmin):
+    list_display = [ "id","comment","user_id","project_id","created_datetime","updated_datetime"]

@@ -28,3 +28,16 @@ class SupervisorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supervisor
         fields = '__all__'
+
+
+class NotesSerilizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Notes
+        fields = '__all__'
+
+class CommentsSerilizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comments
+        fields = '__all__'

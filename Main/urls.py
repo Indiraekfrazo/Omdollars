@@ -23,5 +23,8 @@ urlpatterns = [
     path('projectbid/<int:pk>', ProjectbidsAPIView.as_view(),name='projectbid_details'),
     path('supervisorprojectdetail/', SupervisorProjectDetailAPIView.as_view(),name='supervisorproject'),
     path('supervisorprojectdetail/<int:pk>', SupervisorProjectDetailAPIView.as_view(),name='supervisorproject_details'),
-
+    path('notes/', NotesAPIView.as_view(),name='notes'),
+    path('notes/<int:pk>', NotesAPIView.as_view(),name='notes_details'),
+    path('comment/', CommentsAPIView.as_view(),name='comment'),
+    path('comment/<int:pk>', CommentsAPIView.as_view(),name='comment_details'),
 ]
