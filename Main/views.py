@@ -207,17 +207,17 @@ class LoginAPIView(APIView):
         if role == "SUPERVISOR":
             if username is not None and password is not None:
                 usr_password = check_password(password, CustomUser.objects.get(user_name=username).password)
-                if CustomUser.objects.filter(username=username).exists():
-                    user_obj = CustomUser.objects.get(username=username)
+                if CustomUser.objects.filter(user_name=username).exists():
+                    user_obj = CustomUser.objects.get(user_name=username)
                     auth_token = jwt.encode(
-                        {'cuser_id':cuser_obj.id,"user_name":username ,
+                        {'cuser_id':user_obj.id,"user_name":username ,
                         }, str(settings.JWT_SECRET_KEY), algorithm="HS256")
                     authorization = 'Bearer'+' '+str(auth_token)
                     response_result = {}
                     response = {}
                     response_result['result'] = {
                             'detail': 'Login successfull',
-                            'cuser_id':cuser_obj.id,
+                            'cuser_id':user_obj.id,
                             'user_name':username,
                             'token':authorization,
                             'status': status.HTTP_200_OK
@@ -227,9 +227,9 @@ class LoginAPIView(APIView):
                     return Response({"error":"Invalid Credentails"},status=status.HTTP_404_NOT_FOUND )
                     
         if role == 'STUDENT':
-            if CustomUser.objects.filter(username=username).exists() and org_password == True:
-                org_password = check_password(password, CustomUser.objects.get(username=username).password)
-                cuser_obj= CustomUser.objects.get(username=username)
+            if CustomUser.objects.filter(user_name=username,password=password).exists():
+                org_password =CustomUser.objects.get(user_name=username).password
+                cuser_obj= CustomUser.objects.get(user_name=username)
                     #user_id =CustomUser.objects.get(Q(phone_number=phone_number))
                 auth_token = jwt.encode(
                         {'cuser_id':cuser_obj.id,"user_name":username ,
