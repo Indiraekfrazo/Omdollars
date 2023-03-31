@@ -25,3 +25,5 @@ class ProjectstatusSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Projectstatus
         fields = '__all__'
+
+

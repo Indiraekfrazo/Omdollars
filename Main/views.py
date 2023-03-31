@@ -194,20 +194,21 @@ class LoginAPIView(APIView):
                 response_result = {}
                 response = {}
                 response_result['result'] = {
-                    'detail': 'Login successfull',
-                    'cuser_id':cuser_obj.id,
-                    'user_name':username,
-                    'token':authorization,
-                    'status': status.HTTP_200_OK
-                    }
+                        'detail': 'Login successfull',
+                        'cuser_id':cuser_obj.id,
+                        'user_name':username,
+                        'token':authorization,
+                        'status': status.HTTP_200_OK
+                        }
+                return Response(response_result, headers=response,status= status.HTTP_200_OK)
             else:
                 return Response({"error":"User does Not exit"})
                 
-        elif role == "SUPERVISOR":
+        if role == "SUPERVISOR":
             if username is not None and password is not None:
-                usr_password = check_password(password, User.objects.get(username=username).password)
-                if User.objects.filter(username=username).exists():
-                    user_obj = User.objects.get(username=username)
+                usr_password = check_password(password, CustomUser.objects.get(user_name=username).password)
+                if CustomUser.objects.filter(username=username).exists():
+                    user_obj = CustomUser.objects.get(username=username)
                     auth_token = jwt.encode(
                         {'cuser_id':cuser_obj.id,"user_name":username ,
                         }, str(settings.JWT_SECRET_KEY), algorithm="HS256")
@@ -215,23 +216,24 @@ class LoginAPIView(APIView):
                     response_result = {}
                     response = {}
                     response_result['result'] = {
-                        'detail': 'Login successfull',
-                        'cuser_id':cuser_obj.id,
-                        'user_name':username,
-                        'token':authorization,
-                        'status': status.HTTP_200_OK
-                    }
+                            'detail': 'Login successfull',
+                            'cuser_id':cuser_obj.id,
+                            'user_name':username,
+                            'token':authorization,
+                            'status': status.HTTP_200_OK
+                        }
+                    return Response(response_result, headers=response,status= status.HTTP_200_OK)
                 else:
                     return Response({"error":"Invalid Credentails"},status=status.HTTP_404_NOT_FOUND )
                     
-        elif role == 'STUDENT':
-            if User.objects.filter(username=username).exists() and org_password == True:
-                org_password = check_password(password, User.objects.get(username=username).password)
-                cuser_obj= User.objects.get(username=username)
-                #user_id =CustomUser.objects.get(Q(phone_number=phone_number))
+        if role == 'STUDENT':
+            if CustomUser.objects.filter(username=username).exists() and org_password == True:
+                org_password = check_password(password, CustomUser.objects.get(username=username).password)
+                cuser_obj= CustomUser.objects.get(username=username)
+                    #user_id =CustomUser.objects.get(Q(phone_number=phone_number))
                 auth_token = jwt.encode(
-                    {'cuser_id':cuser_obj.id,"user_name":username ,
-                    }, str(settings.JWT_SECRET_KEY), algorithm="HS256")
+                        {'cuser_id':cuser_obj.id,"user_name":username ,
+                        }, str(settings.JWT_SECRET_KEY), algorithm="HS256")
                 authorization = 'Bearer'+' '+str(auth_token)
                 response_result = {}
                 response = {}
@@ -241,19 +243,19 @@ class LoginAPIView(APIView):
                         'user_name':username,
                         'token':authorization,
                         'status': status.HTTP_200_OK
-                    }     
-            else:
-                header_response = {}
-                response['error'] = {'error': {
+                        }  
+                return Response(response_result, headers=response,status= status.HTTP_200_OK) 
+        else:
+            header_response = {}
+            response['error'] = {'error': {
                         'detail': 'Invalid Email / Password', 'status': status.HTTP_401_UNAUTHORIZED}}   #incorrect username and password
-                return Response(response['error'],headers=header_response,status= status.HTTP_401_UNAUTHORIZED)
+            return Response(response['error'],headers=header_response,status= status.HTTP_401_UNAUTHORIZED)
         
-
         response['error'] = {'error': {
-            'detail': 'Invalid Username / Password', 'status': status.HTTP_401_UNAUTHORIZED}}
+        'detail': 'Invalid Username / Password', 'status': status.HTTP_401_UNAUTHORIZED}}
         return Response({'message': 'User account does  Not exit'},response['error'], status= status.HTTP_401_UNAUTHORIZED)
 
-
+            #return Response({'message': 'User account does  Not exit'},response['error'], status= status.HTTP_401_UNAUTHORIZED)
 #This loginapiview for  username and password 
 # class LoginAPIView(APIView):
 #     def post(self,request):
