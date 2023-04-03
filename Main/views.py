@@ -21,6 +21,7 @@ from django.db.utils import IntegrityError
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import auth
 from rest_framework.authtoken.views import ObtainAuthToken
+from django.core.mail import message, send_mail, EmailMessage
 # Create your views here.
 
 class RegisterAPIView(APIView):
@@ -255,7 +256,6 @@ class LoginAPIView(APIView):
         'detail': 'Invalid Username / Password', 'status': status.HTTP_401_UNAUTHORIZED}}
         return Response({'message': 'User account does  Not exit'},response['error'], status= status.HTTP_401_UNAUTHORIZED)
 
-            #return Response({'message': 'User account does  Not exit'},response['error'], status= status.HTTP_401_UNAUTHORIZED)
 #This loginapiview for  username and password 
 # class LoginAPIView(APIView):
 #     def post(self,request):
@@ -294,6 +294,23 @@ class LoginAPIView(APIView):
 #             return Response(response['error'], status= status.HTTP_401_UNAUTHORIZED)
 
 
+class ForgotPasswordAPIView(APIView):
+    def post(self, request):
+        data = request.data
+        username = data.get('user_name')
+        password = data.get('password')
+        user_check = CustomUser.objects.filter(user_name= username)
+        if user_check:
+            user_data = CustomUser.objects.get(user_name= username)
+            user_data.set_password(password)
+            user_data.save()
+            message= 'Hello!\nYour password has been updated sucessfully. '
+            subject= 'Password Updated Sucessfully '
+            email = EmailMessage(subject, message, to=[user_data.email])
+            email.send()
+            return Response({'result':{'message': 'Password Updated Sucessfully'}})
+        else:
+            return Response({'error':{'message': 'Please Enter Valid username'}})
 
 
 class ProjectAPIView(APIView):
