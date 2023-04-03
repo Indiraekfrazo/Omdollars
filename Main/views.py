@@ -275,7 +275,7 @@ class LoginAPIView(APIView):
 #                 response_result = {}
 #                 response = {}
 #                 response_result['result'] = {
-#                     'detail': 'Login successfull',
+#                     'detail': 'Login successfully',
 #                     'cuser_id':cuser.id,
 #                     'token':authorization,
 #                     'status': status.HTTP_200_OK
