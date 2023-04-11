@@ -922,4 +922,119 @@ class CommentsAPIView(APIView):
                 }},status=status.HTTP_404_NOT_FOUND)
         
         
-    
+class TaskdetailAPIView(APIView):
+    def post(self,request):
+        #breakpoint()
+        data = request.data
+        project_name = data.get('project_name')
+        start_time = data.get('start_time')
+        end_time = data.get('end_time')
+        description = data.get('description')
+        student_notes = data.get('student_notes_id')
+        student_comments = data.get('student_comments_id')
+        status = data.get('status')
+        reason = data.get('reason')
+        superviser = data.get('superviser_id')
+        selected_page_no =1 
+        page_number = request.GET.get('page')
+        if page_number:
+            selected_page_no = int(page_number)
+        try:
+            if data:
+                name = Projects.objects.get(project_name=project_name)
+                Taskdetail.objects.create(project_name=name,
+                                        description=description,
+                                        start_time = start_time,
+                                        end_time = end_time,
+                                        student_notes= student_notes,
+                                        student_comments = student_comments,
+                                        status = status,
+                                        reason = reason,
+                                        superviser = superviser
+
+                                        )
+                project = Taskdetail.objects.all().values()
+                paginator = Paginator(project,10)
+            try:
+                page_obj = paginator.get_page(selected_page_no)
+            except PageNotAnInteger:
+                page_obj = paginator.page(1)
+            except:
+                page_obj = paginator.page(paginator.num_pages)
+            return Response({'result':{'status':'Data created sucdessfully','data':list(page_obj)}})
+        except IntegrityError as e:
+            error_message = e.args
+            return Response({
+            'error':{'message':'DB error!',
+            'detail':error_message,
+            'status_code':status.HTTP_400_BAD_REQUEST,
+            }},status=status.HTTP_400_BAD_REQUEST)
+        
+    def get(self,request):
+        id = request.query_params.get('id')
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+
+        if pagination == 'FALSE':
+            all_data = Taskdetail.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
+        else:
+            all_data = Taskdetail.objects.all().values()
+            
+            data_pagination = MyPagination(all_data,page_number,data_per_page,request)
+
+            return Response({'result':{'status':'GET ALL',
+                'pagination':{
+                    'current_page':data_pagination[1]['current_page'],
+                    'number_of_pages':data_pagination[1]['number_of_pages'],
+                    'next_url':data_pagination[1]['next_url'],
+                    'previous_url':data_pagination[1]['previous_url'],
+                    'has_next':data_pagination[1]['has_next'],
+                    'has_previous':data_pagination[1]['has_previous'],
+                    'has_other_pages':data_pagination[1]['has_other_pages'],
+                },
+                'data':data_pagination[0]
+                }})
+        
+
+    def put(self, request):
+        data = request.data
+        id = data.get('id')
+        if id:
+            data = Taskdetail.objects.filter(id=id).update(project_name = data.get("project_name"),
+                                        start_time = data.get('start_time'),
+                                        end_time = data.get('end_time'),
+                                        description = data.get('description'),
+                                        student_notes = data.get('student_notes_id'),
+                                        student_comments = data.get('student_comments_id'),
+                                        status = data.get('status'),
+                                        reason = data.get('reason'),
+                                        superviser = data.get('superviser_id')
+                                        )
+            if data:
+                    return Response({'message': 'Data Updated Sucessfully.'})
+            else:
+                response={'message':"Invalid id"}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'Id Required.'})
+
+
+
+    def delete(self, request):
+        id =self.request.query_params.get('id')
+        item = Taskdetail.objects.filter(id= id)
+        if len(item) > 0:
+            item.delete()
+            return Response({'result':{'Status':'Data Deleted Sucessfully'}})
+        else:
+            return Response({'error':{'message':'Record not found!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)

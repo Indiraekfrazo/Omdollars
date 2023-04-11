@@ -39,6 +39,8 @@ class Projects(models.Model):
     created_datetime = models.DateTimeField(auto_now_add=True, null=True)
     updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
 
+    def __str__(self):
+        return self.project_name
 
 class Supervisor(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
@@ -80,3 +82,23 @@ class Comments(models.Model):
     project_id = models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="projects_on_comments")
     created_datetime = models.DateTimeField(auto_now_add=True, null=True)
     updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
+
+
+class StudentProjects(models.Model):
+    project = models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="student_on_projects")
+    student = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE,related_name="student_on_project")
+
+
+class Taskdetail(models.Model):
+    project_name = models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="projects_on_task")
+    description = models.CharField(max_length=50, null=True, blank=True)
+    start_time = models.DateTimeField(blank=True, null=True)
+    end_time = models.DateTimeField(blank=True, null=True)
+    student_notes = models.ForeignKey(Notes,null=True, on_delete= models.CASCADE,related_name="task_on_notes")
+    student_comments = models.ForeignKey(Comments,null=True, on_delete= models.CASCADE,related_name="task_on_comments")
+    status = models.ForeignKey(Projectstatus,null=True, on_delete= models.CASCADE,related_name="task_on_status")
+    reason = models.CharField(max_length=50, null=True, blank=True)
+    superviser = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE,related_name="projects_on_task")
+
+    def __str__(self):
+        return self.project_name

@@ -28,5 +28,7 @@ urlpatterns = [
     path('notes/<int:pk>', NotesAPIView.as_view(),name='notes_details'),
     path('comment/', CommentsAPIView.as_view(),name='comment'),
     path('comment/<int:pk>', CommentsAPIView.as_view(),name='comment_details'),
+    path('taskdetail/', TaskdetailAPIView.as_view(), name = 'taskdetail'),
+    path('taskdetail/<int:pk>', TaskdetailAPIView.as_view(),name='taskdetail_details'),
     
 ]
