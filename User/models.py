@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 
 class Role(models.Model):
     name = models.CharField(max_length=200,null=True, blank =True)
-    description = models.CharField(max_length=200, null =True, blank=True)
     access = models.CharField(max_length=200, null =True, blank=True)
     created_datetime = models.DateTimeField(auto_now_add=True, null=True)
     updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
@@ -15,8 +14,8 @@ class Role(models.Model):
 
 
 class RateCard(models.Model):
+    sl_no = models.CharField(max_length=200,null =True, blank=True)
     work = models.CharField(max_length=200, null =True, blank=True)
-    description = models.CharField(max_length=200, null =True, blank=True)
     rate = models.CharField(max_length=200, null =True, blank=True)
     created_datetime = models.DateTimeField(auto_now_add=True, null=True)
     updated_datetime = models.DateTimeField(auto_now_add=True, null=True)

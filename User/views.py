@@ -14,17 +14,16 @@ from django.db.utils import IntegrityError
 
 class RoleAPIView(APIView):
     def post(self,request):
+        #breakpoint()
         data = request.data
         name = data.get('name')
-        description = data.get('description')
         access = data.get('access')
         if data:
             if Role.objects.filter(Q(name=name)).exists():
                 return Response({'Error':'User Already Exists'})
             else:
-                role=Role.objects.create(name=name,description=description,access=access)
-
-            return Response({"Message":"Data Sucessfully Added","Status": "HTTP_201_CREATED","Data":role})
+                role=Role.objects.create(name=name,access=access)
+                return Response({"Message":"Data Sucessfully Added","Status": "HTTP_201_CREATED"})
         else:
             return Response({"Error":"Data Already Exists","status":"status.HTTP_400_BAD_REQUEST"})
 
@@ -43,7 +42,7 @@ class RoleAPIView(APIView):
         data = request.data
         id = data.get('id')
         if id:
-            data = Role.objects.filter(id=id).update(name=data.get('name'),description=data.get('description'),access=data.get('access'))
+            data = Role.objects.filter(id=id).update(name=data.get('name'),access=data.get('access'))
             if data:
                     return Response({'message': 'Data Updated Sucessfully.'})
             else:
@@ -71,14 +70,14 @@ class RoleAPIView(APIView):
 class RateCardAPIView(APIView):
     def post(self,request):
         data = request.data
+        sl_no = data.get('sl_no')
         work = data.get('work')
         rate = data.get('rate')
-        description = data.get('description')
         if data:
             if RateCard.objects.filter(Q(work=work)).exists():
                 return Response({'Error':'User Already Exists'})
             else:
-                ratecard=RateCard.objects.create(work=work,description=description,rate=rate)
+                ratecard=RateCard.objects.create(sl_no=sl_no,work=work,rate=rate)
                 return Response({"Message":"Data Sucessfully Added","Status": "HTTP_201_CREATED"})
         else:
             return Response({"Error":"Data Already Exists","status":"status.HTTP_400_BAD_REQUEST"})
@@ -98,7 +97,7 @@ class RateCardAPIView(APIView):
         data = request.data
         id = data.get('id')
         if id:
-            data = RateCard.objects.filter(id=id).update(work=data.get('work'),description=data.get('description'),rate=data.get('rate'))
+            data = RateCard.objects.filter(id=id).update(sl_no = data.get('sl_no'),work=data.get('work'),rate=data.get('rate'))
             if data:
                     return Response({'message': 'Data Updated Sucessfully.'})
             else:

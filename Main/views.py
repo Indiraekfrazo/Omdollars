@@ -22,6 +22,14 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import auth
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.core.mail import message, send_mail, EmailMessage
+from rest_framework import pagination
+from rest_framework.pagination import PageNumberPagination
+from .pagination import * 
+from django.core.paginator import Paginator
+from .backends import *
+from rest_framework.pagination import PageNumberPagination
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from rest_framework.response import Response
 # Create your views here.
 
 class RegisterAPIView(APIView):
@@ -227,7 +235,7 @@ class LoginAPIView(APIView):
                 else:
                     return Response({"error":"Invalid Credentails"},status=status.HTTP_404_NOT_FOUND )
                     
-        if role == 'STUDENT':
+        if role == 'USER':
             if CustomUser.objects.filter(user_name=username,password=password).exists():
                 org_password =CustomUser.objects.get(user_name=username).password
                 cuser_obj= CustomUser.objects.get(user_name=username)
@@ -319,13 +327,14 @@ class ProjectAPIView(APIView):
         project_name = data.get('project_name')
         estimated_hours = data.get('estimated_hours')
         estimation_completion_time = data.get('estimation_completion_time')
-        description_of_work = data.get('description_of_work')
+        description = data.get('description')
         outcome_required = data.get('outcome_required')
         estimated_value_rate = data.get('estimated_value_rate')
         terms_and_conditions = data.get('terms_and_conditions')
         is_accepted_tnc = data.get('is_accepted_tnc')
         project_status= data.get('project_status_id')
         user_ref= data.get('user_ref_id')
+        Skillset = data.get('Skillset')
         selected_page_no =1 
         page_number = request.GET.get('page')
         if page_number:
@@ -338,13 +347,14 @@ class ProjectAPIView(APIView):
                 Projects.objects.create(project_name=project_name,
                                         estimated_hours = estimated_hours,
                                         estimation_completion_time = estimation_completion_time,
-                                        description_of_work=description_of_work,
+                                        description=description,
                                         outcome_required = outcome_required,
                                         estimated_value_rate=estimated_value_rate,
                                         terms_and_conditions = terms_and_conditions,
                                         is_accepted_tnc = is_accepted_tnc,
                                         project_status_id = project_status,
                                         user_ref_id= user_ref,
+                                        Skillset = Skillset,
                                         )
                 project = Projects.objects.all().values()
                 paginator = Paginator(project,10)
@@ -363,20 +373,53 @@ class ProjectAPIView(APIView):
             'status_code':status.HTTP_400_BAD_REQUEST,
             }},status=status.HTTP_400_BAD_REQUEST)
 
+    # def get(self,request):
+    #     id = request.query_params.get('id')
+    #     if id:
+    #         try:
+    #             all_data = Projects.objects.filter(id=id).values()
+    #             return Response({'result':{'status':'GET by id','data':all_data}})
+    #         except Projects.DoesNotExist:
+    #             return Response({
+    #             'error':{'message':'Id does not exists!',
+    #             'status_code':status.HTTP_404_NOT_FOUND,
+    #             }},status=status.HTTP_404_NOT_FOUND)
+    #     else:
+    #         all_data = Projects.objects.all().values()
+    #         return Response({'result':{'status':'All data','data':all_data}})
+        
     def get(self,request):
         id = request.query_params.get('id')
-        if id:
-            try:
-                all_data = Projects.objects.filter(id=id).values()
-                return Response({'result':{'status':'GET by id','data':all_data}})
-            except Projects.DoesNotExist:
-                return Response({
-                'error':{'message':'Id does not exists!',
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
                 'status_code':status.HTTP_404_NOT_FOUND,
                 }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+
+        if pagination == 'FALSE':
+            all_data = Projects.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
         else:
             all_data = Projects.objects.all().values()
-            return Response({'result':{'status':'All data','data':all_data}})
+            
+            data_pagination = MyPagination(all_data,page_number,data_per_page,request)
+
+            return Response({'result':{'status':'GET ALL',
+                'pagination':{
+                    'current_page':data_pagination[1]['current_page'],
+                    'number_of_pages':data_pagination[1]['number_of_pages'],
+                    'next_url':data_pagination[1]['next_url'],
+                    'previous_url':data_pagination[1]['previous_url'],
+                    'has_next':data_pagination[1]['has_next'],
+                    'has_previous':data_pagination[1]['has_previous'],
+                    'has_other_pages':data_pagination[1]['has_other_pages'],
+                },
+                'data':data_pagination[0]
+                }})
         
 
     def put(self, request):
@@ -386,13 +429,14 @@ class ProjectAPIView(APIView):
             data = Projects.objects.filter(id=id).update(project_name = data.get("project_name"),
                                         estimated_hours = data.get("estimated_hours"),
                                         estimation_completion_time = data.get("estimation_completion_time"),
-                                        description_of_work=data.get("description_of_work"),
+                                        description=data.get("description"),
                                         outcome_required = data.get("outcome_required"),
                                         estimated_value_rate=data.get("estimated_value_rate"),
                                         terms_and_conditions = data.get("terms_and_conditions"),
                                         is_accepted_tnc = data.get("is_accepted_tnc"),
                                         project_status = data.get("project_status"),
                                         user_ref = data.get("user"),
+                                        Skillset = data.get("Skillset")
                                         )
             if data:
                     return Response({'message': 'Data Updated Sucessfully.'})
@@ -419,7 +463,9 @@ class SupervisorAPIView(APIView):
     def post(self,request):
         data = request.data
         name = data.get('name')
-        status= data.get('status')
+        email = data.get('email')
+        p_status= data.get('status')
+        mobile_number = data.get('mobile_number')
         user_id= data.get('user_id')
         selected_page_no =1 
         page_number = request.GET.get('page')
@@ -431,8 +477,10 @@ class SupervisorAPIView(APIView):
             else:
 
                 Supervisor.objects.create(name=name,
-                                        status = status,
-                                        user_id_id= user_id,
+                                        status = p_status,
+                                        email = email,
+                                        mobile_number = mobile_number,
+                                        user_id_id = user_id,
                                         )
                 project = Supervisor.objects.all().values()
                 paginator = Paginator(project,10)
@@ -451,20 +499,53 @@ class SupervisorAPIView(APIView):
             'status_code':status.HTTP_400_BAD_REQUEST,
             }},status=status.HTTP_400_BAD_REQUEST)
 
+    # def get(self,request):
+    #     id = request.query_params.get('id')
+    #     if id:
+    #         try:
+    #             all_data = Supervisor.objects.filter(id=id).values()
+    #             return Response({'result':{'status':'GET by id','data':all_data}})
+    #         except Supervisor.DoesNotExist:
+    #             return Response({
+    #             'error':{'message':'Id does not exists!',
+    #             'status_code':status.HTTP_404_NOT_FOUND,
+    #             }},status=status.HTTP_404_NOT_FOUND)
+    #     else:
+    #         all_data = Supervisor.objects.all().values()
+    #         return Response({'result':{'status':'All data','data':all_data}})
+    
     def get(self,request):
         id = request.query_params.get('id')
-        if id:
-            try:
-                all_data = Supervisor.objects.filter(id=id).values()
-                return Response({'result':{'status':'GET by id','data':all_data}})
-            except Supervisor.DoesNotExist:
-                return Response({
-                'error':{'message':'Id does not exists!',
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
                 'status_code':status.HTTP_404_NOT_FOUND,
                 }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+
+        if pagination == 'FALSE':
+            all_data = Supervisor.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
         else:
             all_data = Supervisor.objects.all().values()
-            return Response({'result':{'status':'All data','data':all_data}})
+            
+            data_pagination = MyPagination(all_data,page_number,data_per_page,request)
+
+            return Response({'result':{'status':'GET ALL',
+                'pagination':{
+                    'current_page':data_pagination[1]['current_page'],
+                    'number_of_pages':data_pagination[1]['number_of_pages'],
+                    'next_url':data_pagination[1]['next_url'],
+                    'previous_url':data_pagination[1]['previous_url'],
+                    'has_next':data_pagination[1]['has_next'],
+                    'has_previous':data_pagination[1]['has_previous'],
+                    'has_other_pages':data_pagination[1]['has_other_pages'],
+                },
+                'data':data_pagination[0]
+                }})
         
 
     def put(self, request):
@@ -473,6 +554,8 @@ class SupervisorAPIView(APIView):
         if id:
             data = Supervisor.objects.filter(id=id).update(name = data.get("name"),
                                         status = data.get("status"),
+                                        email = data.get("email"),
+                                        mobile_number = data.get("mobile_number"),
                                         user_id = data.get("user_id"),
                                 )
             if data:
@@ -838,3 +921,5 @@ class CommentsAPIView(APIView):
                 'status_code':status.HTTP_404_NOT_FOUND,
                 }},status=status.HTTP_404_NOT_FOUND)
         
+        
+    

@@ -26,25 +26,28 @@ class CustomUser(models.Model):
     
 class Projects(models.Model):
     project_name = models.CharField(max_length=50, null=True, blank=True)
+    description = models.CharField(max_length=50, null=True, blank=True)
     estimated_hours = models.CharField(max_length=50, null=True, blank=True)
     estimation_completion_time = models.CharField(max_length=50, null=True, blank=True)
-    description_of_work = models.CharField(max_length=50, null=True, blank=True)
     outcome_required = models.CharField(max_length=50, null=True, blank=True)
     estimated_value_rate = models.CharField(max_length=50, null=True, blank=True)
     terms_and_conditions = models.CharField(max_length=50, null=True, blank=True)
     is_accepted_tnc = models.BooleanField()
     project_status = models.ForeignKey(Projectstatus,null=True, on_delete= models.CASCADE,related_name="status_on_projects")
     user_ref = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE,related_name="user_on_projects")
+    Skillset = models.CharField(max_length=50, null=True, blank=True)
     created_datetime = models.DateTimeField(auto_now_add=True, null=True)
     updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
 
 
 class Supervisor(models.Model):
     name = models.CharField(max_length=50, null=True, blank=True)
+    email = models.EmailField(max_length=50, null=True, blank=True)
+    mobile_number = models.CharField(max_length=12,null=True, blank=True)
     status = models.CharField(max_length=50, null=True, blank=True)
+    user_id = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE)
     created_datetime = models.DateTimeField(auto_now_add=True, null=True)
     updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
-    user_id = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE)
 
 class Projectbids(models.Model):
     description = models.CharField(max_length=50, null=True, blank=True)
