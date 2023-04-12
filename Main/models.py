@@ -57,6 +57,8 @@ class Projectbids(models.Model):
     project_id = models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="projects_on_projectbids")
     created_datetime = models.DateTimeField(auto_now_add=True, null=True)
     updated_datetime = models.DateTimeField(auto_now_add=True, null=True)
+    start_time = models.DateTimeField(blank=True, null=True)
+    end_time = models.DateTimeField(blank=True, null=True)
 
 
 class SupervisorProjectDetail(models.Model):

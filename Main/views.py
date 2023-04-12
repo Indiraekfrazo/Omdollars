@@ -373,8 +373,21 @@ class ProjectAPIView(APIView):
             'status_code':status.HTTP_400_BAD_REQUEST,
             }},status=status.HTTP_400_BAD_REQUEST)
 
+
     def get(self,request):
         id = request.query_params.get('id')
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+        if pagination == 'FALSE':
+            all_data = Projects.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
+
         if id:
             try:
                 all_data = Projects.objects.filter(id=id).values()
@@ -386,26 +399,6 @@ class ProjectAPIView(APIView):
                 }},status=status.HTTP_404_NOT_FOUND)
         else:
             all_data = Projects.objects.all().values()
-            return Response({'result':{'status':'All data','data':all_data}})
-        
-    def get(self,request):
-        id = request.query_params.get('id')
-        page_number = request.query_params.get('page_number')
-        data_per_page = request.query_params.get('data_per_page')
-        
-        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
-            return Response({
-                'error':{'message':'page_number or data_per_page parameter missing!',
-                'status_code':status.HTTP_404_NOT_FOUND,
-                }},status=status.HTTP_404_NOT_FOUND)
-        pagination = request.query_params.get('pagination')
-
-        if pagination == 'FALSE':
-            all_data = Projects.objects.all().values()
-            return Response({'result':{'status':'GET all without pagination','data':all_data}})
-        else:
-            all_data = Projects.objects.all().values()
-            
             data_pagination = MyPagination(all_data,page_number,data_per_page,request)
 
             return Response({'result':{'status':'GET ALL',
@@ -499,8 +492,21 @@ class SupervisorAPIView(APIView):
             'status_code':status.HTTP_400_BAD_REQUEST,
             }},status=status.HTTP_400_BAD_REQUEST)
 
+
     def get(self,request):
         id = request.query_params.get('id')
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+        if pagination == 'FALSE':
+            all_data = Supervisor.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
+
         if id:
             try:
                 all_data = Supervisor.objects.filter(id=id).values()
@@ -512,26 +518,6 @@ class SupervisorAPIView(APIView):
                 }},status=status.HTTP_404_NOT_FOUND)
         else:
             all_data = Supervisor.objects.all().values()
-            return Response({'result':{'status':'All data','data':all_data}})
-    
-    def get(self,request):
-        id = request.query_params.get('id')
-        page_number = request.query_params.get('page_number')
-        data_per_page = request.query_params.get('data_per_page')
-        
-        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
-            return Response({
-                'error':{'message':'page_number or data_per_page parameter missing!',
-                'status_code':status.HTTP_404_NOT_FOUND,
-                }},status=status.HTTP_404_NOT_FOUND)
-        pagination = request.query_params.get('pagination')
-
-        if pagination == 'FALSE':
-            all_data = Supervisor.objects.all().values()
-            return Response({'result':{'status':'GET all without pagination','data':all_data}})
-        else:
-            all_data = Supervisor.objects.all().values()
-            
             data_pagination = MyPagination(all_data,page_number,data_per_page,request)
 
             return Response({'result':{'status':'GET ALL',
@@ -587,8 +573,8 @@ class ProjectbidsAPIView(APIView):
         description = data.get('description')
         user_id= data.get('user_id')
         project_id= data.get('project_id')
-        created_datetime =data.get('created_datetime')
-        updated_datetime= data.get('updated_datetime')
+        start_time = data.get('start_time')
+        end_time = data.get('end_time')
         selected_page_no =1 
         page_number = request.GET.get('page')
         if page_number:
@@ -599,8 +585,8 @@ class ProjectbidsAPIView(APIView):
                 Projectbids.objects.create(description=description,
                                         user_id_id = user_id,
                                         project_id_id= project_id,
-                                        created_datetime = created_datetime,
-                                        updated_datetime= updated_datetime
+                                        start_time = start_time,
+                                        end_time = end_time
                                         )
                 project = Projectbids.objects.all().values()
                 paginator = Paginator(project,10)
@@ -618,12 +604,29 @@ class ProjectbidsAPIView(APIView):
             'detail':error_message,
             'status_code':status.HTTP_400_BAD_REQUEST,
             }},status=status.HTTP_400_BAD_REQUEST)
+    
 
     def get(self,request):
-        id = request.query_params.get('id')
+        project_id = request.query_params.get('project_id')
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+        if pagination == 'FALSE':
+            all_data = Projectbids.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
+
         if id:
             try:
-                all_data = Projectbids.objects.filter(id=id).values()
+                all_data = Projectbids.objects.filter(project_id=project_id).values('project_id__id','project_id__project_name',
+                'project_id__estimated_hours','project_id__estimation_completion_time','project_id__description',
+                'project_id__Skillset','project_id__outcome_required','project_id__estimated_value_rate',
+                'project_id__terms_and_conditions','project_id__is_accepted_tnc',
+                'project_id__project_status_id')
                 return Response({'result':{'status':'GET by id','data':all_data}})
             except Projectbids.DoesNotExist:
                 return Response({
@@ -632,8 +635,20 @@ class ProjectbidsAPIView(APIView):
                 }},status=status.HTTP_404_NOT_FOUND)
         else:
             all_data = Projectbids.objects.all().values()
-            return Response({'result':{'status':'All data','data':all_data}})
-        
+            data_pagination = MyPagination(all_data,page_number,data_per_page,request)
+
+            return Response({'result':{'status':'GET ALL',
+                'pagination':{
+                    'current_page':data_pagination[1]['current_page'],
+                    'number_of_pages':data_pagination[1]['number_of_pages'],
+                    'next_url':data_pagination[1]['next_url'],
+                    'previous_url':data_pagination[1]['previous_url'],
+                    'has_next':data_pagination[1]['has_next'],
+                    'has_previous':data_pagination[1]['has_previous'],
+                    'has_other_pages':data_pagination[1]['has_other_pages'],
+                },
+                'data':data_pagination[0]
+                }})
 
     def put(self, request):
         data = request.data
@@ -870,6 +885,8 @@ class NotesAPIView(APIView):
                 }},status=status.HTTP_404_NOT_FOUND)
         
 
+
+
 class CommentsAPIView(APIView):
     def post(self,request):
         data = request.data
@@ -907,12 +924,26 @@ class CommentsAPIView(APIView):
             'status_code':status.HTTP_400_BAD_REQUEST,
             }},status=status.HTTP_400_BAD_REQUEST)
 
-
+        
     def get(self,request):
         id = request.query_params.get('id')
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+        if pagination == 'FALSE':
+            all_data = Comments.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
+
         if id:
             try:
-                all_data = Comments.objects.filter(id=id).values()
+                all_data = Comments.objects.filter(id = id).values('project_id__id','project_id__project_name',
+                'project_id__estimated_hours','project_id__estimation_completion_time',
+                'project_id__Skillset','project_id__estimated_value_rate','created_datetime')
                 return Response({'result':{'status':'GET by id','data':all_data}})
             except Comments.DoesNotExist:
                 return Response({
@@ -921,26 +952,6 @@ class CommentsAPIView(APIView):
                 }},status=status.HTTP_404_NOT_FOUND)
         else:
             all_data = Comments.objects.all().values()
-            return Response({'result':{'status':'All data','data':all_data}})
-        
-    def get(self,request):
-        id = request.query_params.get('id')
-        page_number = request.query_params.get('page_number')
-        data_per_page = request.query_params.get('data_per_page')
-        
-        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
-            return Response({
-                'error':{'message':'page_number or data_per_page parameter missing!',
-                'status_code':status.HTTP_404_NOT_FOUND,
-                }},status=status.HTTP_404_NOT_FOUND)
-        pagination = request.query_params.get('pagination')
-
-        if pagination == 'FALSE':
-            all_data = Comments.objects.all().values()
-            return Response({'result':{'status':'GET all without pagination','data':all_data}})
-        else:
-            all_data = Comments.objects.all().values()
-            
             data_pagination = MyPagination(all_data,page_number,data_per_page,request)
 
             return Response({'result':{'status':'GET ALL',
@@ -984,8 +995,9 @@ class CommentsAPIView(APIView):
             return Response({'error':{'message':'Record not found!',
                 'status_code':status.HTTP_404_NOT_FOUND,
                 }},status=status.HTTP_404_NOT_FOUND)
-        
-        
+    
+   
+
 class TaskdetailAPIView(APIView):
     def post(self,request):
         data = request.data
@@ -1167,13 +1179,91 @@ class StudentProjectAPIView(APIView):
             all_data = StudentProjects.objects.all().values()
             return Response({'result':{'status':'All data','data':all_data}})
         
-    # class AdminwiseResponseAPIView(APIView):
-    # def get(self,request):
-    #     user_id =self.request.query_params.get('user_id')
-    #     if user_id:
-    #         appdata =UserResponse.objects.filter(user_id=user_id).values('question','answer')
-    #         #return Response(appdata)
-    #         return Response({"Status": "HTTP_200_OK","Data":appdata})
-    #     else:
-    #         appdata =UserResponse.objects.all().values()
-    #         return Response({"Status": "HTTP_200_OK","Data":appdata})
+class BidprojectManagementAPIView(APIView):
+    def get(self,request):
+        project_id = request.query_params.get('project_id')
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+        if pagination == 'FALSE':
+            all_data = Projectbids.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
+
+        if project_id:
+            try:
+                all_data = Projectbids.objects.filter(project_id=project_id).values('project_id__id','project_id__project_name',
+                'project_id__outcome_required','user_id__user_name',                                         
+                'project_id__estimated_hours','project_id__estimation_completion_time',
+                'project_id__Skillset','project_id__estimated_value_rate','project_id__created_datetime','project_id__updated_datetime')
+                return Response({'result':{'status':'GET by id','data':all_data}})
+            except Projectbids.DoesNotExist:
+                return Response({
+                'error':{'message':'Id does not exists!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        else:
+            all_data = Projectbids.objects.all().values()
+            data_pagination = MyPagination(all_data,page_number,data_per_page,request)
+
+            return Response({'result':{'status':'GET ALL',
+                'pagination':{
+                    'current_page':data_pagination[1]['current_page'],
+                    'number_of_pages':data_pagination[1]['number_of_pages'],
+                    'next_url':data_pagination[1]['next_url'],
+                    'previous_url':data_pagination[1]['previous_url'],
+                    'has_next':data_pagination[1]['has_next'],
+                    'has_previous':data_pagination[1]['has_previous'],
+                    'has_other_pages':data_pagination[1]['has_other_pages'],
+                },
+                'data':data_pagination[0]
+                }})
+
+
+
+class SubmittalsAPIView(APIView):
+    def get(self,request):
+        project_id = request.query_params.get('project_id')
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+        if pagination == 'FALSE':
+            all_data = Projectbids.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
+
+        if project_id:
+            try:
+                all_data = Projectbids.objects.filter(project_id = project_id).values('project_id__id','project_id__project_name',
+                'project_id__estimated_hours','project_id__estimation_completion_time',
+                'project_id__Skillset','project_id__estimated_value_rate','created_datetime')
+                return Response({'result':{'status':'GET by id','data':all_data}})
+            except Projectbids.DoesNotExist:
+                return Response({
+                'error':{'message':'Id does not exists!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        else:
+            all_data = Projectbids.objects.all().values()
+            data_pagination = MyPagination(all_data,page_number,data_per_page,request)
+
+            return Response({'result':{'status':'GET ALL',
+                'pagination':{
+                    'current_page':data_pagination[1]['current_page'],
+                    'number_of_pages':data_pagination[1]['number_of_pages'],
+                    'next_url':data_pagination[1]['next_url'],
+                    'previous_url':data_pagination[1]['previous_url'],
+                    'has_next':data_pagination[1]['has_next'],
+                    'has_previous':data_pagination[1]['has_previous'],
+                    'has_other_pages':data_pagination[1]['has_other_pages'],
+                },
+                'data':data_pagination[0]
+                }})

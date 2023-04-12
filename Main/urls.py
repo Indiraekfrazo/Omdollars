@@ -30,6 +30,7 @@ urlpatterns = [
     path('comment/<int:pk>', CommentsAPIView.as_view(),name='comment_details'),
     path('taskdetail/', TaskdetailAPIView.as_view(), name = 'taskdetail'),
     path('taskdetail/<int:pk>', TaskdetailAPIView.as_view(),name='taskdetail_details'),
-    path('projectforstudents/', StudentProjectAPIView.as_view(), name ='projectforstudents')
-    
+    path('projectforstudents/', StudentProjectAPIView.as_view(), name ='projectforstudents'),
+    path('submittals/',SubmittalsAPIView.as_view(), name = 'submittalview'),
+    path('bidprojectManagement/', BidprojectManagementAPIView.as_view(),name='comment_details'),
 ]
