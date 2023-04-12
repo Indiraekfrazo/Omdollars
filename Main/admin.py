@@ -37,3 +37,12 @@ class Notes(admin.ModelAdmin):
 @admin.register(Comments)
 class Comments(admin.ModelAdmin):
     list_display = [ "id","comment","user_id","project_id","created_datetime","updated_datetime"]
+
+@admin.register(Taskdetail)
+class Taskdetail(admin.ModelAdmin):
+    list_display = [ "id","project_name","description","start_time","end_time","student_notes","student_comments","status",
+                    "reason","superviser"]
+    
+@admin.register(StudentProjects)
+class StudentProjects(admin.ModelAdmin):
+    list_display = [ "id","student","student","project"]

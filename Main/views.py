@@ -373,20 +373,20 @@ class ProjectAPIView(APIView):
             'status_code':status.HTTP_400_BAD_REQUEST,
             }},status=status.HTTP_400_BAD_REQUEST)
 
-    # def get(self,request):
-    #     id = request.query_params.get('id')
-    #     if id:
-    #         try:
-    #             all_data = Projects.objects.filter(id=id).values()
-    #             return Response({'result':{'status':'GET by id','data':all_data}})
-    #         except Projects.DoesNotExist:
-    #             return Response({
-    #             'error':{'message':'Id does not exists!',
-    #             'status_code':status.HTTP_404_NOT_FOUND,
-    #             }},status=status.HTTP_404_NOT_FOUND)
-    #     else:
-    #         all_data = Projects.objects.all().values()
-    #         return Response({'result':{'status':'All data','data':all_data}})
+    def get(self,request):
+        id = request.query_params.get('id')
+        if id:
+            try:
+                all_data = Projects.objects.filter(id=id).values()
+                return Response({'result':{'status':'GET by id','data':all_data}})
+            except Projects.DoesNotExist:
+                return Response({
+                'error':{'message':'Id does not exists!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        else:
+            all_data = Projects.objects.all().values()
+            return Response({'result':{'status':'All data','data':all_data}})
         
     def get(self,request):
         id = request.query_params.get('id')
@@ -499,20 +499,20 @@ class SupervisorAPIView(APIView):
             'status_code':status.HTTP_400_BAD_REQUEST,
             }},status=status.HTTP_400_BAD_REQUEST)
 
-    # def get(self,request):
-    #     id = request.query_params.get('id')
-    #     if id:
-    #         try:
-    #             all_data = Supervisor.objects.filter(id=id).values()
-    #             return Response({'result':{'status':'GET by id','data':all_data}})
-    #         except Supervisor.DoesNotExist:
-    #             return Response({
-    #             'error':{'message':'Id does not exists!',
-    #             'status_code':status.HTTP_404_NOT_FOUND,
-    #             }},status=status.HTTP_404_NOT_FOUND)
-    #     else:
-    #         all_data = Supervisor.objects.all().values()
-    #         return Response({'result':{'status':'All data','data':all_data}})
+    def get(self,request):
+        id = request.query_params.get('id')
+        if id:
+            try:
+                all_data = Supervisor.objects.filter(id=id).values()
+                return Response({'result':{'status':'GET by id','data':all_data}})
+            except Supervisor.DoesNotExist:
+                return Response({
+                'error':{'message':'Id does not exists!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        else:
+            all_data = Supervisor.objects.all().values()
+            return Response({'result':{'status':'All data','data':all_data}})
     
     def get(self,request):
         id = request.query_params.get('id')
@@ -807,6 +807,38 @@ class NotesAPIView(APIView):
             all_data = Notes.objects.all().values()
             return Response({'result':{'status':'All data','data':all_data}})
         
+    def get(self,request):
+        id = request.query_params.get('id')
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+
+        if pagination == 'FALSE':
+            all_data = Notes.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
+        else:
+            all_data = Notes.objects.all().values()
+            
+            data_pagination = MyPagination(all_data,page_number,data_per_page,request)
+
+            return Response({'result':{'status':'GET ALL',
+                'pagination':{
+                    'current_page':data_pagination[1]['current_page'],
+                    'number_of_pages':data_pagination[1]['number_of_pages'],
+                    'next_url':data_pagination[1]['next_url'],
+                    'previous_url':data_pagination[1]['previous_url'],
+                    'has_next':data_pagination[1]['has_next'],
+                    'has_previous':data_pagination[1]['has_previous'],
+                    'has_other_pages':data_pagination[1]['has_other_pages'],
+                },
+                'data':data_pagination[0]
+                }})
 
     def put(self, request):
         data = request.data
@@ -891,6 +923,38 @@ class CommentsAPIView(APIView):
             all_data = Comments.objects.all().values()
             return Response({'result':{'status':'All data','data':all_data}})
         
+    def get(self,request):
+        id = request.query_params.get('id')
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+
+        if pagination == 'FALSE':
+            all_data = Comments.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
+        else:
+            all_data = Comments.objects.all().values()
+            
+            data_pagination = MyPagination(all_data,page_number,data_per_page,request)
+
+            return Response({'result':{'status':'GET ALL',
+                'pagination':{
+                    'current_page':data_pagination[1]['current_page'],
+                    'number_of_pages':data_pagination[1]['number_of_pages'],
+                    'next_url':data_pagination[1]['next_url'],
+                    'previous_url':data_pagination[1]['previous_url'],
+                    'has_next':data_pagination[1]['has_next'],
+                    'has_previous':data_pagination[1]['has_previous'],
+                    'has_other_pages':data_pagination[1]['has_other_pages'],
+                },
+                'data':data_pagination[0]
+                }})
 
     def put(self, request):
         data = request.data
@@ -924,7 +988,6 @@ class CommentsAPIView(APIView):
         
 class TaskdetailAPIView(APIView):
     def post(self,request):
-        #breakpoint()
         data = request.data
         project_name = data.get('project_name')
         start_time = data.get('start_time')
@@ -944,13 +1007,11 @@ class TaskdetailAPIView(APIView):
                 name = Projects.objects.get(project_name=project_name)
                 Taskdetail.objects.create(project_name=name,
                                         description=description,
-                                        start_time = start_time,
-                                        end_time = end_time,
-                                        student_notes= student_notes,
-                                        student_comments = student_comments,
-                                        status = status,
+                                        student_notes_id= student_notes,
+                                        student_comments_id = student_comments,
+                                        status_id = status,
                                         reason = reason,
-                                        superviser = superviser
+                                        superviser_id = superviser
 
                                         )
                 project = Taskdetail.objects.all().values()
@@ -969,6 +1030,23 @@ class TaskdetailAPIView(APIView):
             'detail':error_message,
             'status_code':status.HTTP_400_BAD_REQUEST,
             }},status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+    def get(self,request):
+        id = request.query_params.get('id')
+        if id:
+            try:
+                all_data = Taskdetail.objects.filter(id=id).values()
+                return Response({'result':{'status':'GET by id','data':all_data}})
+            except Taskdetail.DoesNotExist:
+                return Response({
+                'error':{'message':'Id does not exists!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        else:
+            all_data = Taskdetail.objects.all().values()
+            return Response({'result':{'status':'All data','data':all_data}})
         
     def get(self,request):
         id = request.query_params.get('id')
@@ -1007,16 +1085,16 @@ class TaskdetailAPIView(APIView):
     def put(self, request):
         data = request.data
         id = data.get('id')
+        project_name = data.get('project_name')
         if id:
-            data = Taskdetail.objects.filter(id=id).update(project_name = data.get("project_name"),
-                                        start_time = data.get('start_time'),
-                                        end_time = data.get('end_time'),
+            name = Projects.objects.get(project_name=project_name)
+            data = Taskdetail.objects.filter(id=id).update(project_name = name,
                                         description = data.get('description'),
-                                        student_notes = data.get('student_notes_id'),
-                                        student_comments = data.get('student_comments_id'),
-                                        status = data.get('status'),
+                                        student_notes_id = data.get('student_notes_id'),
+                                        student_comments_id = data.get('student_comments_id'),
+                                        status_id = data.get('status'),
                                         reason = data.get('reason'),
-                                        superviser = data.get('superviser_id')
+                                        superviser_id = data.get('superviser_id')
                                         )
             if data:
                     return Response({'message': 'Data Updated Sucessfully.'})
@@ -1038,3 +1116,64 @@ class TaskdetailAPIView(APIView):
             return Response({'error':{'message':'Record not found!',
                 'status_code':status.HTTP_404_NOT_FOUND,
                 }},status=status.HTTP_404_NOT_FOUND)
+
+
+class StudentProjectAPIView(APIView):
+    def post(self,request):
+        #breakpoint()
+        data = request.data
+        project_id = data.get('project_id')
+        student_id = data.get('student_id')
+        selected_page_no =1 
+        page_number = request.GET.get('page')
+        if page_number:
+            selected_page_no = int(page_number)
+        try:
+            if data:
+                StudentProjects.objects.create(project_id = project_id,
+                                          student_id = student_id
+                                        )
+                project = StudentProjects.objects.all().values()
+                paginator = Paginator(project,10)
+            try:
+                page_obj = paginator.get_page(selected_page_no)
+            except PageNotAnInteger:
+                page_obj = paginator.page(1)
+            except:
+                page_obj = paginator.page(paginator.num_pages)
+            return Response({'result':{'status':'Data created sucdessfully','data':list(page_obj)}})
+        except IntegrityError as e:
+            error_message = e.args
+            return Response({
+            'error':{'message':'DB error!',
+            'detail':error_message,
+            'status_code':status.HTTP_400_BAD_REQUEST,
+            }},status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+    def get(self,request):
+        id = request.query_params.get('id')
+        if id:
+            try:
+                all_data = StudentProjects.objects.filter(id=id).values()
+                return Response({'result':{'status':'GET by id','data':all_data}})
+            except StudentProjects.DoesNotExist:
+                return Response({
+                'error':{'message':'Id does not exists!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        else:
+            all_data = StudentProjects.objects.all().values()
+            return Response({'result':{'status':'All data','data':all_data}})
+        
+    # class AdminwiseResponseAPIView(APIView):
+    # def get(self,request):
+    #     user_id =self.request.query_params.get('user_id')
+    #     if user_id:
+    #         appdata =UserResponse.objects.filter(user_id=user_id).values('question','answer')
+    #         #return Response(appdata)
+    #         return Response({"Status": "HTTP_200_OK","Data":appdata})
+    #     else:
+    #         appdata =UserResponse.objects.all().values()
+    #         return Response({"Status": "HTTP_200_OK","Data":appdata})
