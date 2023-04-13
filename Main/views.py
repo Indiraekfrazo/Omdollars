@@ -1267,3 +1267,81 @@ class SubmittalsAPIView(APIView):
                 },
                 'data':data_pagination[0]
                 }})
+        
+
+class RewardsAPIView(APIView):
+    def post(self,request):
+        data = request.data
+        project_name = data.get('project_name')
+        student_id = data.get('student_id')
+        selected_page_no =1 
+        page_number = request.GET.get('page')
+        if page_number:
+            selected_page_no = int(page_number)
+        try:
+            if data:
+                name = Projects.objects.get(project_name=project_name)
+                StudentProjects.objects.create(project_name = name,
+                                          student_id = student_id
+                                        )
+                project = StudentProjects.objects.filter().values('id','project_name__project_name','student__user_name',
+                                                                  'project_name__estimated_hours','student__om_dollars_balance',
+                                                                  'project_name__estimation_completion_time',
+                                                                  'project_name__project_status')
+                paginator = Paginator(project,10)
+            try:
+                page_obj = paginator.get_page(selected_page_no)
+            except PageNotAnInteger:
+                page_obj = paginator.page(1)
+            except:
+                page_obj = paginator.page(paginator.num_pages)
+            return Response({'result':{'status':'Data created sucdessfully','data':list(page_obj)}})
+        except IntegrityError as e:
+            error_message = e.args
+            return Response({
+            'error':{'message':'DB error!',
+            'detail':error_message,
+            'status_code':status.HTTP_400_BAD_REQUEST,
+            }},status=status.HTTP_400_BAD_REQUEST)
+        return Response ()
+
+
+    def get(self,request):
+        id = request.query_params.get('id')
+        page_number = request.query_params.get('page_number')
+        data_per_page = request.query_params.get('data_per_page')
+        if (page_number == None) | (page_number == '') | (data_per_page ==None ) | (data_per_page == '') :
+            return Response({
+                'error':{'message':'page_number or data_per_page parameter missing!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        pagination = request.query_params.get('pagination')
+        if pagination == 'FALSE':
+            all_data = StudentProjects.objects.all().values()
+            return Response({'result':{'status':'GET all without pagination','data':all_data}})
+
+        if id:
+            try:
+                all_data = StudentProjects.objects.filter(id=id).values()
+                return Response({'result':{'status':'GET by id','data':all_data}})
+            except StudentProjects.DoesNotExist:
+                return Response({
+                'error':{'message':'Id does not exists!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
+        else:
+            all_data = StudentProjects.objects.all().values()
+            data_pagination = MyPagination(all_data,page_number,data_per_page,request)
+
+            return Response({'result':{'status':'GET ALL',
+                'pagination':{
+                    'current_page':data_pagination[1]['current_page'],
+                    'number_of_pages':data_pagination[1]['number_of_pages'],
+                    'next_url':data_pagination[1]['next_url'],
+                    'previous_url':data_pagination[1]['previous_url'],
+                    'has_next':data_pagination[1]['has_next'],
+                    'has_previous':data_pagination[1]['has_previous'],
+                    'has_other_pages':data_pagination[1]['has_other_pages'],
+                },
+                'data':data_pagination[0]
+                }})

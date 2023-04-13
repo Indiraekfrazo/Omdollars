@@ -87,7 +87,7 @@ class Comments(models.Model):
 
 
 class StudentProjects(models.Model):
-    project = models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="student_on_projects")
+    project_name= models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="student_on_projects")
     student = models.ForeignKey(CustomUser,null=True, on_delete= models.CASCADE,related_name="student_on_project")
 
 
@@ -104,3 +104,11 @@ class Taskdetail(models.Model):
 
     def __str__(self):
         return self.project_name
+# class Reward(models.Model):
+#     s_no = models.CharField(max_length=200,null =True, blank=True)
+#     description = models.CharField(max_length=200,null =True, blank=True)
+#     ref_no = models.CharField(max_length=200,null =True, blank=True)
+#     allocation_amount = models.CharField(max_length=200,null =True, blank=True)
+#     withdraw_amount = models.CharField(max_length=200,null =True, blank=True)
+#     closing_balance = models.CharField(max_length=200,null =True, blank=True)
+#     deposit_amount = models.CharField(max_length=200,null =True, blank=True)

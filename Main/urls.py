@@ -33,4 +33,5 @@ urlpatterns = [
     path('projectforstudents/', StudentProjectAPIView.as_view(), name ='projectforstudents'),
     path('submittals/',SubmittalsAPIView.as_view(), name = 'submittalview'),
     path('bidprojectManagement/', BidprojectManagementAPIView.as_view(),name='comment_details'),
+    #path('rewards/',RewardsAPIView.as_view(), name = 'rewardsapiview')
 ]

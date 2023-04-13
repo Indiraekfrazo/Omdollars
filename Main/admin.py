@@ -45,4 +45,4 @@ class Taskdetail(admin.ModelAdmin):
     
 @admin.register(StudentProjects)
 class StudentProjects(admin.ModelAdmin):
-    list_display = [ "id","student","student","project"]
+    list_display = [ "id","student","project_name"]
