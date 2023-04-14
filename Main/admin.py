@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import *
 
 
+
 # Register your models here.
 @admin.register(CustomUser)
 class CustomUser(admin.ModelAdmin):
@@ -46,3 +47,7 @@ class Taskdetail(admin.ModelAdmin):
 @admin.register(StudentProjects)
 class StudentProjects(admin.ModelAdmin):
     list_display = [ "id","student","project_name"]
+
+@admin.register(Reward)
+class Reward(admin.ModelAdmin):
+    list_display = [ "id","s_no","description","project","allocation_amount",'withdraw_amount','closing_balance','deposit_amount']

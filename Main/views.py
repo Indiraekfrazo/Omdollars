@@ -1271,24 +1271,32 @@ class SubmittalsAPIView(APIView):
 
 class RewardsAPIView(APIView):
     def post(self,request):
+        breakpoint()
         data = request.data
-        project_name = data.get('project_name')
-        student_id = data.get('student_id')
+        s_no = data.get('s_no')        
+        project = data.get('project_id')
+        description = data.get('description')
+        allocation_amount = data.get('allocation_amount')
+        withdraw_amount = data.get('withdraw_amount')
+        closing_balance = data.get('closing_balance')
+        deposit_amount = data.get('deposit_amount')
         selected_page_no =1 
         page_number = request.GET.get('page')
         if page_number:
             selected_page_no = int(page_number)
         try:
             if data:
-                name = Projects.objects.get(project_name=project_name)
-                StudentProjects.objects.create(project_name = name,
-                                          student_id = student_id
+                Reward.objects.create(s_no = s_no,
+                                    project_id = project,
+                                    description = description,
+                                    allocation_amount = allocation_amount, 
+                                    withdraw_amount = withdraw_amount,
+                                    closing_balance = closing_balance,
+                                    deposit_amount = deposit_amount,
+                
                                         )
-                project = StudentProjects.objects.filter().values('id','project_name__project_name','student__user_name',
-                                                                  'project_name__estimated_hours','student__om_dollars_balance',
-                                                                  'project_name__estimation_completion_time',
-                                                                  'project_name__project_status')
-                paginator = Paginator(project,10)
+                reward = Reward.objects.all().values()
+                paginator = Paginator(reward,10)
             try:
                 page_obj = paginator.get_page(selected_page_no)
             except PageNotAnInteger:
@@ -1303,7 +1311,7 @@ class RewardsAPIView(APIView):
             'detail':error_message,
             'status_code':status.HTTP_400_BAD_REQUEST,
             }},status=status.HTTP_400_BAD_REQUEST)
-        return Response ()
+        
 
 
     def get(self,request):
@@ -1317,20 +1325,20 @@ class RewardsAPIView(APIView):
                 }},status=status.HTTP_404_NOT_FOUND)
         pagination = request.query_params.get('pagination')
         if pagination == 'FALSE':
-            all_data = StudentProjects.objects.all().values()
+            all_data = Reward.objects.all().values()
             return Response({'result':{'status':'GET all without pagination','data':all_data}})
 
         if id:
             try:
-                all_data = StudentProjects.objects.filter(id=id).values()
+                all_data = Reward.objects.filter(id=id).values()
                 return Response({'result':{'status':'GET by id','data':all_data}})
-            except StudentProjects.DoesNotExist:
+            except Reward.DoesNotExist:
                 return Response({
                 'error':{'message':'Id does not exists!',
                 'status_code':status.HTTP_404_NOT_FOUND,
                 }},status=status.HTTP_404_NOT_FOUND)
         else:
-            all_data = StudentProjects.objects.all().values()
+            all_data = Reward.objects.all().values()
             data_pagination = MyPagination(all_data,page_number,data_per_page,request)
 
             return Response({'result':{'status':'GET ALL',
@@ -1345,3 +1353,36 @@ class RewardsAPIView(APIView):
                 },
                 'data':data_pagination[0]
                 }})
+        
+    def put(self, request):
+        data = request.data
+        id = data.get('id')
+        if id:
+            data = Reward.objects.filter(id=id).update(s_no = data.get('s_no'),      
+                                                        project_id= data.get('project_id'),
+                                                        description = data.get('description'),
+                                                        allocation_amount = data.get('allocation_amount'),
+                                                        withdraw_amount = data.get('withdraw_amount'),
+                                                        closing_balance = data.get('closing_balance'),
+                                                        deposit_amount = data.get('deposit_amount'),
+                                        )
+            if data:
+                    return Response({'message': 'Data Updated Sucessfully.'})
+            else:
+                response={'message':"Invalid id"}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'Id Required.'})
+
+
+
+    def delete(self, request):
+        id =self.request.query_params.get('id')
+        item = Reward.objects.filter(id= id)
+        if len(item) > 0:
+            item.delete()
+            return Response({'result':{'Status':'Data Deleted Sucessfully'}})
+        else:
+            return Response({'error':{'message':'Record not found!',
+                'status_code':status.HTTP_404_NOT_FOUND,
+                }},status=status.HTTP_404_NOT_FOUND)
