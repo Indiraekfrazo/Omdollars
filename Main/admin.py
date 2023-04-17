@@ -50,4 +50,5 @@ class StudentProjects(admin.ModelAdmin):
 
 @admin.register(Reward)
 class Reward(admin.ModelAdmin):
-    list_display = [ "id","s_no","description","project","allocation_amount",'withdraw_amount','closing_balance','deposit_amount']
+    list_display = [ "id","description","project_name","allocation_amount","withdraw_amount","closing_balance","date",
+                    "deposit_amount"]

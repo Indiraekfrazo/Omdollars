@@ -106,11 +106,10 @@ class Taskdetail(models.Model):
         return self.project_name
     
 class Reward(models.Model):
-    s_no = models.CharField(max_length=200,null =True, blank=True)
     description = models.CharField(max_length=200,null =True, blank=True)
-    project = models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="projects_on_reward")
+    project_name= models.ForeignKey(Projects,null=True, on_delete= models.CASCADE,related_name="projects_on_reward")
     allocation_amount = models.CharField(max_length=200,null =True, blank=True)
     withdraw_amount = models.CharField(max_length=200,null =True, blank=True)
     closing_balance = models.CharField(max_length=200,null =True, blank=True)
     deposit_amount = models.CharField(max_length=200,null =True, blank=True)
-    
+    date = models.DateTimeField(auto_now_add=True, null=True)

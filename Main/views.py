@@ -1271,10 +1271,9 @@ class SubmittalsAPIView(APIView):
 
 class RewardsAPIView(APIView):
     def post(self,request):
-        breakpoint()
-        data = request.data
-        s_no = data.get('s_no')        
-        project = data.get('project_id')
+        #breakpoint()
+        data = request.data       
+        project_name = data.get('project_name')
         description = data.get('description')
         allocation_amount = data.get('allocation_amount')
         withdraw_amount = data.get('withdraw_amount')
@@ -1286,8 +1285,8 @@ class RewardsAPIView(APIView):
             selected_page_no = int(page_number)
         try:
             if data:
-                Reward.objects.create(s_no = s_no,
-                                    project_id = project,
+                name = Projects.objects.get(project_name=project_name)
+                Reward.objects.create(project_name = name,
                                     description = description,
                                     allocation_amount = allocation_amount, 
                                     withdraw_amount = withdraw_amount,
@@ -1306,7 +1305,7 @@ class RewardsAPIView(APIView):
             return Response({'result':{'status':'Data created sucdessfully','data':list(page_obj)}})
         except IntegrityError as e:
             error_message = e.args
-            return Response({
+            return Response({ 
             'error':{'message':'DB error!',
             'detail':error_message,
             'status_code':status.HTTP_400_BAD_REQUEST,
@@ -1359,7 +1358,7 @@ class RewardsAPIView(APIView):
         id = data.get('id')
         if id:
             data = Reward.objects.filter(id=id).update(s_no = data.get('s_no'),      
-                                                        project_id= data.get('project_id'),
+                                                        project_name= data.get('project_name'),
                                                         description = data.get('description'),
                                                         allocation_amount = data.get('allocation_amount'),
                                                         withdraw_amount = data.get('withdraw_amount'),
